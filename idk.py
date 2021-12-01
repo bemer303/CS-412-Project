@@ -3,11 +3,11 @@ import numpy as np
 from pandas import read_csv
 import category_encoders as ce
 from sklearn.naive_bayes import GaussianNB
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import LabelEncoder, OrdinalEncoder, OneHotEncoder
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn.feature_selection import SelectKBest, mutual_info_classif
 
 #df = pd.read_csv('adult.data', names=['age', 'workclass', 'fnlwgt', 'education', 'education-number',
 #                                          'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain',
@@ -50,7 +50,7 @@ y_test = le2.fit_transform(y_test)
 gnb = GaussianNB()
 gnb.fit(X_train, y_train)
 y_pred = gnb.predict(X_test)
-print("Gaussian Naive Bayes model accuracy(in %):", metrics.accuracy_score(y_test, y_pred)*100)
+print('Gaussian Naive Bayes model accuracy: %.2f' % (metrics.accuracy_score(y_test, y_pred)*100))
 
 model = LogisticRegression(solver='lbfgs',max_iter = 10000)
 model.fit(X_train, y_train)
@@ -58,3 +58,19 @@ y_hat = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_hat)
 print('Logistic Regression Accuracy: %.2f' % (accuracy*100))
 
+#feature selection
+fs = SelectKBest(score_func=mutual_info_classif, k = 8)
+fs.fit(X_train, y_train)
+X_train = fs.transform(X_train)
+X_test = fs.transform(X_test)
+
+gnb = GaussianNB()
+gnb.fit(X_train, y_train)
+y_pred = gnb.predict(X_test)
+print('Gaussian Naive Bayes model accuracy w k=8 feature selection: %.2f' % (metrics.accuracy_score(y_test, y_pred)*100))
+
+model = LogisticRegression(solver='lbfgs',max_iter = 10000)
+model.fit(X_train, y_train)
+y_hat = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_hat)
+print('Logistic Regression Accuracy w k=8 feature selection: %.2f' % (accuracy*100))
