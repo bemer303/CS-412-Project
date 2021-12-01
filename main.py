@@ -6,6 +6,7 @@ import sklearn.preprocessing as pp
 from sklearn import metrics
 import category_encoders as ce
 from sklearn.feature_selection import SelectKBest, chi2
+from sklearn.neighbors import KNeighborsClassifier
 
 if __name__ == '__main__':
 
@@ -46,6 +47,9 @@ if __name__ == '__main__':
 
     gnb.fit(X, y)
 
+    neigh = KNeighborsClassifier(n_neighbors=5)
+    neigh.fit(X,y)
+
     bnb = BernoulliNB()
     clf = ComplementNB()
 
@@ -55,9 +59,11 @@ if __name__ == '__main__':
     y_pred = gnb.predict(X_test)
     y_pred2 = bnb.predict(X_test)
     y_pred3 = clf.predict(X_test)
+    y_pred4 = neigh.predict(X_test)
     print("Gaussian Naive Bayes model accuracy(in %):", metrics.accuracy_score(y_test, y_pred)*100)
     print("Bernoulli Naive Bayes model accuracy(in %):", metrics.accuracy_score(y_test, y_pred2) * 100)
     print("Complement Naive Bayes model accuracy(in %):", metrics.accuracy_score(y_test, y_pred3) * 100)
+    print("KNN model accuracy(in %):", metrics.accuracy_score(y_test, y_pred4) * 100)
 
 
 
