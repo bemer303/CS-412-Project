@@ -1,30 +1,14 @@
 import os
 import numpy as np
 import pandas as pd
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB, BernoulliNB, CategoricalNB, ComplementNB
 import sklearn.preprocessing as pp
 from sklearn import metrics
 import category_encoders as ce
+from sklearn.feature_selection import SelectKBest, chi2
 
 if __name__ == '__main__':
 
-    # load data into numpy array
-    # data = np.loadtxt("adult.data", delimiter= ',', dtype=str)
-    #
-    # # classification data is last column of data
-    # y = np.array(data[:,14])
-    #
-    # # remove last column from data
-    # X = np.delete(data,14,1)
-    #
-    # clf = GaussianNB()
-    # # prints for reference
-    # print(X[0])
-    # print(X[:,0])
-    #
-    # # convert age to float
-    # for x in X[:,0]:
-    #     x = float(x)
 
     df = pd.read_csv('adult.data', names=['age', 'workclass', 'fnlwgt', 'education', 'education-number',
                                           'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain',
@@ -43,12 +27,15 @@ if __name__ == '__main__':
     # enc2 = pp.OneHotEncoder(handle_unknown='ignore')
 
     enc = ce.count.CountEncoder()
-    enc2 = ce.count.CountEncoder()
 
     X = enc.fit_transform(X,y)
-    X_test = enc2.fit_transform(X_test, y_test)
+    print(enc.get_feature_names())
+
+    X_test = enc.fit_transform(X_test, y_test)
     y = le.fit_transform(y)
     y_test = le.fit_transform(y_test)
+    X = SelectKBest(chi2, k=14).fit_transform(X,y)
+    X_test = SelectKBest(chi2, k=14).fit_transform(X_test,y_test)
 
     #X_2 = enc.fit(X)
     #X_2 = enc.fit_transform(X).toarray()
@@ -59,8 +46,18 @@ if __name__ == '__main__':
 
     gnb.fit(X, y)
 
+    bnb = BernoulliNB()
+    clf = ComplementNB()
+
+    bnb.fit(X, y)
+    clf.fit(X, y)
+
     y_pred = gnb.predict(X_test)
+    y_pred2 = bnb.predict(X_test)
+    y_pred3 = clf.predict(X_test)
     print("Gaussian Naive Bayes model accuracy(in %):", metrics.accuracy_score(y_test, y_pred)*100)
+    print("Bernoulli Naive Bayes model accuracy(in %):", metrics.accuracy_score(y_test, y_pred2) * 100)
+    print("Complement Naive Bayes model accuracy(in %):", metrics.accuracy_score(y_test, y_pred3) * 100)
 
 
 
